@@ -2,7 +2,7 @@
 
 import { usePOS, type CategoryType } from "@/contexts/pos-context"
 import { useMobile } from "@/contexts/mobile-context"
-import { Grid, Coffee, Pizza, Sandwich, Cake, UtensilsCrossed } from "lucide-react"
+import { Grid, Coffee, Pizza, Sandwich, Cake, UtensilsCrossed } from 'lucide-react'
 
 const categories = [
   { icon: Grid, label: "Todos" as CategoryType, items: "24 Itens" },
@@ -35,4 +35,3 @@ export function CategoryFilter() {
     </div>
   )
 }
-

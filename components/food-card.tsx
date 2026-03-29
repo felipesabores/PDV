@@ -30,10 +30,7 @@ export function FoodCard({ image, title, price, discount, type, onClick }: FoodC
       <div className="p-3">
         <h3 className={`${isMobile ? "text-xs" : "text-sm"} font-medium mb-1`}>{title}</h3>
         <div className="flex justify-between items-center">
-          <span className="text-green-600 font-bold">
-            {isMobile ? "R$" : "R$ "}
-            {price.toFixed(2)}
-          </span>
+          <span className="text-green-600 font-bold">{isMobile ? "R$" : "R$ "}{price.toFixed(2)}</span>
           <div className="flex items-center gap-1">
             <span className="text-xs text-gray-500">{type}</span>
           </div>
@@ -42,4 +39,3 @@ export function FoodCard({ image, title, price, discount, type, onClick }: FoodC
     </Card>
   )
 }
-

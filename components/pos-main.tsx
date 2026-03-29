@@ -12,36 +12,24 @@ import { Footer } from "./footer"
 import { OrderTickets } from "./order-tickets"
 import { KitchenView } from "./kitchen-view"
 import { OrdersView } from "./orders-view"
-import DashboardView from "./dashboard-view"
+import { DashboardView } from "./dashboard-view"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ShoppingCart, RefreshCw } from "lucide-react"
+import { ShoppingCart } from 'lucide-react'
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { useToast } from "@/hooks/use-toast"
 
 export function POSMain() {
-  const {
-    customerName,
-    setCustomerName,
-    activeOrders,
-    currentOrderId,
-    resetCurrentOrder,
-    currentView,
-    cartItems,
-    refreshOrders,
-  } = usePOS()
-
+  const { customerName, setCustomerName, activeOrders, currentOrderId, resetCurrentOrder, currentView, cartItems } =
+    usePOS()
   const { isMobile, isTablet } = useMobile()
-  const { toast } = useToast()
 
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(!customerName)
   const [tempCustomerName, setTempCustomerName] = useState("")
   const [currentOrder, setCurrentOrder] = useState<OrderType | null>(null)
   const [isTicketsOpen, setIsTicketsOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Garantir que o body tenha pointer-events quando o componente for montado
   useEffect(() => {
@@ -79,26 +67,6 @@ export function POSMain() {
     setIsCustomerDialogOpen(false)
     // Restaurar pointer-events
     document.body.style.pointerEvents = ""
-  }
-
-  // Função para atualizar dados do banco de dados
-  const handleRefreshData = async () => {
-    try {
-      setIsRefreshing(true)
-      await refreshOrders()
-      toast({
-        title: "Dados atualizados",
-        description: "Os dados foram sincronizados com o banco de dados",
-      })
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao atualizar os dados",
-        variant: "destructive",
-      })
-    } finally {
-      setIsRefreshing(false)
-    }
   }
 
   // Renderizar o conteúdo principal com base na visualização atual
@@ -217,23 +185,6 @@ export function POSMain() {
 
       {/* Tickets do pedido */}
       {currentOrder && <OrderTickets order={currentOrder} isOpen={isTicketsOpen} onClose={handleCloseTickets} />}
-
-      {/* Botões flutuantes para o dashboard */}
-      {currentView === "dashboard" && (
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 bg-white"
-            onClick={handleRefreshData}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            <span>{isRefreshing ? "Atualizando..." : "Atualizar Dados"}</span>
-          </Button>
-        </div>
-      )}
     </div>
   )
 }
-

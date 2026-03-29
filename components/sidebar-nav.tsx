@@ -1,7 +1,7 @@
 "use client"
 
 import { usePOS, type ViewType } from "@/contexts/pos-context"
-import { Menu, ShoppingBag, CalendarRange, Truck, Calculator, Settings, LogOut, ChefHat, BarChart } from "lucide-react"
+import { Menu, ShoppingBag, CalendarRange, Truck, Calculator, Settings, LogOut, ChefHat, BarChart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
 const LOGO_URL = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-dbUSLLtMvcKp5ixftZw6oxHYF3GfJv.png"
@@ -47,4 +47,3 @@ export function SidebarNav() {
     </div>
   )
 }
-

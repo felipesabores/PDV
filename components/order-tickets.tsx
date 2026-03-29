@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CustomerTicket } from "./customer-ticket"
 import { KitchenTicket } from "./kitchen-ticket"
 import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import { X } from 'lucide-react'
 import type { OrderType } from "@/contexts/pos-context"
 
 interface OrderTicketsProps {
@@ -17,7 +17,7 @@ interface OrderTicketsProps {
 
 export function OrderTickets({ order, isOpen, onClose }: OrderTicketsProps) {
   const [activeTab, setActiveTab] = useState("customer")
-
+  
   // Garantir que o modal seja fechado corretamente
   useEffect(() => {
     if (!isOpen) {
@@ -30,20 +30,17 @@ export function OrderTickets({ order, isOpen, onClose }: OrderTicketsProps) {
   }, [isOpen])
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose()
-        // Restaurar pointer-events quando o modal for fechado
-        if (!open) document.body.style.pointerEvents = ""
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose()
+      // Restaurar pointer-events quando o modal for fechado
+      if (!open) document.body.style.pointerEvents = ""
+    }}>
       <DialogContent className="sm:max-w-md md:max-w-lg">
         <div className="absolute right-4 top-4">
           <DialogClose asChild>
-            <Button
-              variant="ghost"
-              size="icon"
+            <Button 
+              variant="ghost" 
+              size="icon" 
               onClick={() => {
                 onClose()
                 // Restaurar pointer-events quando o botão de fechar for clicado
@@ -55,7 +52,7 @@ export function OrderTickets({ order, isOpen, onClose }: OrderTicketsProps) {
             </Button>
           </DialogClose>
         </div>
-
+        
         <Tabs defaultValue="customer" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="customer">Comprovante Cliente</TabsTrigger>
@@ -72,4 +69,3 @@ export function OrderTickets({ order, isOpen, onClose }: OrderTicketsProps) {
     </Dialog>
   )
 }
-

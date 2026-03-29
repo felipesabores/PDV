@@ -98,3 +98,4 @@ export function KitchenTicket({ order, onClose }: KitchenTicketProps) {
   )
 }
 
+

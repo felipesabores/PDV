@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { usePOS } from "@/contexts/pos-context"
 import { Button } from "@/components/ui/button"
-import { CreditCard, QrCode, Banknote, User, Check, X } from "lucide-react"
+import { CreditCard, QrCode, Banknote, User, Check, X } from 'lucide-react'
 import { CartItem } from "./cart-item"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
 interface CartProps {
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 export function Cart({ onClose }: CartProps) {
@@ -60,15 +60,15 @@ export function Cart({ onClose }: CartProps) {
     try {
       finalizeOrder()
       setIsConfirmDialogOpen(false)
-
+      
       // Fechar o Sheet do carrinho se estiver em mobile
       if (onClose) {
         onClose()
       }
-
+      
       // Restaurar pointer-events
       document.body.style.pointerEvents = ""
-
+      
       toast({
         title: "Pedido finalizado",
         description: "Os tickets foram gerados com sucesso!",
@@ -160,8 +160,8 @@ export function Cart({ onClose }: CartProps) {
       </div>
 
       {/* Diálogo de confirmação do pedido */}
-      <Dialog
-        open={isConfirmDialogOpen}
+      <Dialog 
+        open={isConfirmDialogOpen} 
         onOpenChange={(open) => {
           setIsConfirmDialogOpen(open)
           if (!open) document.body.style.pointerEvents = ""
@@ -240,8 +240,8 @@ export function Cart({ onClose }: CartProps) {
 
           <DialogFooter className="flex justify-between sm:justify-between">
             <DialogClose asChild>
-              <Button
-                variant="outline"
+              <Button 
+                variant="outline" 
                 onClick={() => {
                   setIsConfirmDialogOpen(false)
                   document.body.style.pointerEvents = ""
@@ -261,4 +261,3 @@ export function Cart({ onClose }: CartProps) {
     </>
   )
 }
-

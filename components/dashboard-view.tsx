@@ -1,22 +1,11 @@
 "use client"
 
-import type * as React from "react"
+import * as React from "react"
 import { usePOS, type OrderType, type PaymentMethodType } from "@/contexts/pos-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import {
-  BarChart3,
-  DollarSign,
-  ShoppingBag,
-  CreditCard,
-  Banknote,
-  QrCode,
-  Calendar,
-  Clock,
-  ArrowUpRight,
-  ArrowDownRight,
-} from "lucide-react"
+import { BarChart3, DollarSign, ShoppingBag, CreditCard, Banknote, QrCode, Calendar, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { useMemo, useState } from "react"
 
 // Componente para mostrar estatísticas em cards
@@ -74,7 +63,10 @@ function SimpleBarChart({ data, maxValue }: BarChartProps) {
             <span className="font-medium">R$ {item.value.toFixed(2)}</span>
           </div>
           <div className="h-2 w-full rounded-full bg-muted">
-            <div className={`h-2 rounded-full ${item.color}`} style={{ width: `${(item.value / maxValue) * 100}%` }} />
+            <div
+              className={`h-2 rounded-full ${item.color}`}
+              style={{ width: `${(item.value / maxValue) * 100}%` }}
+            />
           </div>
         </div>
       ))}
@@ -131,16 +123,9 @@ function PaymentMethodDistribution({ orders }: PaymentMethodDistributionProps) {
         <div key={index} className="flex items-center">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white"
-            style={{
-              backgroundColor:
-                method.color === "bg-green-500"
-                  ? "#22c55e"
-                  : method.color === "bg-blue-500"
-                    ? "#3b82f6"
-                    : method.color === "bg-purple-500"
-                      ? "#a855f7"
-                      : "#6b7280",
-            }}
+            style={{ backgroundColor: method.color === "bg-green-500" ? "#22c55e" : 
+                                     method.color === "bg-blue-500" ? "#3b82f6" : 
+                                     method.color === "bg-purple-500" ? "#a855f7" : "#6b7280" }}
           >
             {method.icon}
           </div>
@@ -209,7 +194,6 @@ export default function DashboardView() {
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month">("today")
 
   // Filtrar pedidos com base no período selecionado
-  // Modificar a função filteredOrders para garantir que as datas sejam objetos Date
   const filteredOrders = useMemo(() => {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -219,9 +203,7 @@ export default function DashboardView() {
     monthAgo.setMonth(monthAgo.getMonth() - 1)
 
     return activeOrders.filter((order) => {
-      // Garantir que a data do pedido seja um objeto Date
-      const orderDate = order.createdAt instanceof Date ? order.createdAt : new Date(order.createdAt)
-
+      const orderDate = new Date(order.createdAt)
       if (timeRange === "today") {
         return orderDate >= today
       } else if (timeRange === "week") {
@@ -262,14 +244,14 @@ export default function DashboardView() {
           category === "Fritos"
             ? "bg-yellow-500"
             : category === "Assados"
-              ? "bg-orange-500"
-              : category === "Folhados"
-                ? "bg-blue-500"
-                : category === "Doces"
-                  ? "bg-pink-500"
-                  : category === "Combos"
-                    ? "bg-purple-500"
-                    : "bg-gray-500",
+            ? "bg-orange-500"
+            : category === "Folhados"
+            ? "bg-blue-500"
+            : category === "Doces"
+            ? "bg-pink-500"
+            : category === "Combos"
+            ? "bg-purple-500"
+            : "bg-gray-500",
       }))
       .sort((a, b) => b.value - a.value)
 
@@ -405,19 +387,19 @@ export default function DashboardView() {
                               order.status === "completed"
                                 ? "success"
                                 : order.status === "preparing"
-                                  ? "secondary"
-                                  : order.status === "cancelled"
-                                    ? "destructive"
-                                    : "default"
+                                ? "secondary"
+                                : order.status === "cancelled"
+                                ? "destructive"
+                                : "default"
                             }
                           >
                             {order.status === "completed"
                               ? "Concluído"
                               : order.status === "preparing"
-                                ? "Em preparo"
-                                : order.status === "cancelled"
-                                  ? "Cancelado"
-                                  : "Novo"}
+                              ? "Em preparo"
+                              : order.status === "cancelled"
+                              ? "Cancelado"
+                              : "Novo"}
                           </Badge>
                         </div>
                       </div>
@@ -440,4 +422,3 @@ export default function DashboardView() {
 
 // Também exportamos como named export para compatibilidade
 export { DashboardView }
-

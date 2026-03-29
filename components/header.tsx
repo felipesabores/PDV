@@ -2,18 +2,7 @@
 
 import { usePOS, type ViewType } from "@/contexts/pos-context"
 import { useMobile } from "@/contexts/mobile-context"
-import {
-  Search,
-  ShoppingBag,
-  Menu,
-  ChefHat,
-  CalendarRange,
-  Truck,
-  Calculator,
-  Settings,
-  LogOut,
-  BarChart,
-} from "lucide-react"
+import { Search, ShoppingBag, Menu, ChefHat, CalendarRange, Truck, Calculator, Settings, LogOut, BarChart } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -175,4 +164,3 @@ export function Header() {
     </div>
   )
 }
-

@@ -137,3 +137,4 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   )
 }
 
+

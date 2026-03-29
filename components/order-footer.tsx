@@ -21,3 +21,4 @@ export function OrderFooter({ tableNumber, items, kitchen, process }: OrderFoote
   )
 }
 
+

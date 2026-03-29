@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode, useEffect } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 import type { foodItems } from "@/components/food-grid"
 
 // Tipos
@@ -32,6 +32,7 @@ export interface OrderType {
 
 export type CategoryType = "Todos" | "Fritos" | "Assados" | "Folhados" | "Doces" | "Combos"
 
+// Atualizar o tipo ViewType para incluir dashboard
 export type ViewType = "menu" | "orders" | "kitchen" | "dashboard"
 
 interface POSContextType {
@@ -44,7 +45,6 @@ interface POSContextType {
   currentTable: TableType | null
   currentCategory: CategoryType
   currentView: ViewType
-  isLoading: boolean
 
   // Ações
   setCustomerName: (name: string) => void
@@ -52,13 +52,12 @@ interface POSContextType {
   updateCartItemQuantity: (id: number, quantity: number) => void
   removeFromCart: (id: number) => void
   clearCart: () => void
-  finalizeOrder: (paymentMethod?: PaymentMethodType) => Promise<OrderType>
+  finalizeOrder: (paymentMethod?: PaymentMethodType) => OrderType
   resetCurrentOrder: () => void
   setTableAndCustomer: (tableNumber: TableType, customerName: string) => void
   setCategory: (category: CategoryType) => void
   setView: (view: ViewType) => void
-  updateOrderStatus: (orderId: string, status: OrderType["status"]) => Promise<void>
-  refreshOrders: () => Promise<void>
+  updateOrderStatus: (orderId: string, status: OrderType["status"]) => void
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined)
@@ -73,109 +72,8 @@ export function POSProvider({ children }: { children: ReactNode }) {
   const [currentTable, setCurrentTable] = useState<TableType | null>("balcao")
   const [currentCategory, setCurrentCategory] = useState<CategoryType>("Todos")
   const [currentView, setCurrentView] = useState<ViewType>("menu")
-  const [isLoading, setIsLoading] = useState(true)
 
-  // Inicializar o banco de dados e carregar dados
-  useEffect(() => {
-    async function initializeApp() {
-      try {
-        setIsLoading(true)
-
-        // Inicializar o banco de dados
-        await fetch("/api/init")
-
-        // Carregar pedidos
-        await refreshOrders()
-
-        // Carregar último número de pedido
-        const response = await fetch("/api/settings?key=lastOrderNumber")
-        if (response.ok) {
-          const data = await response.json()
-          setLastOrderNumber(Number.parseInt(data.value, 10))
-        }
-
-        // Carregar dados do localStorage para manter a sessão atual
-        if (typeof window !== "undefined") {
-          // Carregar dados da sessão atual do localStorage
-          const savedCustomerName = localStorage.getItem("pos_customerName")
-          if (savedCustomerName) setCustomerName(savedCustomerName)
-
-          const savedCartItems = localStorage.getItem("pos_cartItems")
-          if (savedCartItems) setCartItems(JSON.parse(savedCartItems))
-
-          const savedCurrentTable = localStorage.getItem("pos_currentTable")
-          if (savedCurrentTable) {
-            setCurrentTable(savedCurrentTable === "balcao" ? "balcao" : Number.parseInt(savedCurrentTable, 10))
-          }
-
-          const savedCurrentCategory = localStorage.getItem("pos_currentCategory")
-          if (savedCurrentCategory) setCurrentCategory(savedCurrentCategory as CategoryType)
-
-          const savedCurrentView = localStorage.getItem("pos_currentView")
-          if (savedCurrentView) setCurrentView(savedCurrentView as ViewType)
-        }
-      } catch (error) {
-        console.error("Erro ao inicializar aplicação:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    initializeApp()
-  }, [])
-
-  // Manter alguns dados na sessão atual usando localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pos_customerName", customerName)
-    }
-  }, [customerName])
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pos_cartItems", JSON.stringify(cartItems))
-    }
-  }, [cartItems])
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (currentTable) {
-        localStorage.setItem("pos_currentTable", currentTable.toString())
-      }
-    }
-  }, [currentTable])
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pos_currentCategory", currentCategory)
-    }
-  }, [currentCategory])
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("pos_currentView", currentView)
-    }
-  }, [currentView])
-
-  // Função para atualizar a lista de pedidos do banco de dados
-  const refreshOrders = async () => {
-    try {
-      const response = await fetch("/api/orders")
-      if (response.ok) {
-        const orders = await response.json()
-        // Converter strings de data para objetos Date
-        const formattedOrders = orders.map((order: any) => ({
-          ...order,
-          createdAt: new Date(order.createdAt),
-          updatedAt: new Date(order.updatedAt),
-        }))
-        setActiveOrders(formattedOrders)
-      }
-    } catch (error) {
-      console.error("Erro ao carregar pedidos:", error)
-    }
-  }
-
+  // Ações
   const setCategory = (category: CategoryType) => {
     setCurrentCategory(category)
   }
@@ -233,64 +131,41 @@ export function POSProvider({ children }: { children: ReactNode }) {
     setCartItems([])
   }
 
-  const finalizeOrder = async (paymentMethod: PaymentMethodType = "dinheiro") => {
+  const finalizeOrder = (paymentMethod: PaymentMethodType = "dinheiro") => {
     if (cartItems.length === 0) {
       throw new Error("Carrinho vazio")
     }
 
-    try {
-      // Incrementar número do pedido
-      const newOrderNumber = lastOrderNumber + 1
+    // Incrementar número do pedido
+    const orderNumber = lastOrderNumber + 1
+    setLastOrderNumber(orderNumber)
 
-      // Calcular total
-      const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 1.05 // Incluindo 5% de imposto
+    // Calcular total
+    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 1.05 // Incluindo 5% de imposto
 
-      // Criar novo pedido
-      const newOrder: OrderType = {
-        id: `order-${Date.now()}`,
-        orderNumber: newOrderNumber,
-        customerName: customerName || `Cliente #${newOrderNumber}`,
-        items: [...cartItems],
-        status: "active",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        total,
-        paymentMethod,
-      }
-
-      // Salvar o pedido no banco de dados
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newOrder),
-      })
-
-      if (!response.ok) {
-        throw new Error("Erro ao salvar pedido")
-      }
-
-      // Atualizar o último número de pedido no banco de dados
-      await fetch("/api/settings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ key: "lastOrderNumber", value: newOrderNumber.toString() }),
-      })
-
-      // Atualizar estado local
-      setLastOrderNumber(newOrderNumber)
-      setActiveOrders((prev) => [...prev, newOrder])
-      setCurrentOrderId(newOrder.id)
-      clearCart()
-
-      return newOrder
-    } catch (error) {
-      console.error("Erro ao finalizar pedido:", error)
-      throw error
+    // Criar novo pedido
+    const newOrder: OrderType = {
+      id: `order-${Date.now()}`,
+      orderNumber,
+      customerName: customerName || `Cliente #${orderNumber}`,
+      items: [...cartItems],
+      status: "active",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      total,
+      paymentMethod,
     }
+
+    // Adicionar aos pedidos ativos
+    setActiveOrders((prev) => [...prev, newOrder])
+
+    // Definir o pedido atual para mostrar o ticket
+    setCurrentOrderId(newOrder.id)
+
+    // Limpar carrinho
+    clearCart()
+
+    return newOrder
   }
 
   const resetCurrentOrder = () => {
@@ -302,36 +177,18 @@ export function POSProvider({ children }: { children: ReactNode }) {
     setCustomerName(customerName)
   }
 
-  const updateOrderStatus = async (orderId: string, status: OrderType["status"]) => {
-    try {
-      const response = await fetch("/api/orders", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: orderId, status }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar status do pedido")
-      }
-
-      // Atualizar estado local
-      setActiveOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId
-            ? {
-                ...order,
-                status,
-                updatedAt: new Date(),
-              }
-            : order,
-        ),
-      )
-    } catch (error) {
-      console.error("Erro ao atualizar status do pedido:", error)
-      throw error
-    }
+  const updateOrderStatus = (orderId: string, status: OrderType["status"]) => {
+    setActiveOrders((prev) =>
+      prev.map((order) =>
+        order.id === orderId
+          ? {
+              ...order,
+              status,
+              updatedAt: new Date(),
+            }
+          : order,
+      ),
+    )
   }
 
   const value = {
@@ -343,7 +200,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
     currentTable,
     currentCategory,
     currentView,
-    isLoading,
     setCustomerName,
     addToCart,
     updateCartItemQuantity,
@@ -355,7 +211,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
     setCategory,
     setView,
     updateOrderStatus,
-    refreshOrders,
   }
 
   return <POSContext.Provider value={value}>{children}</POSContext.Provider>
@@ -368,4 +223,3 @@ export function usePOS() {
   }
   return context
 }
-
